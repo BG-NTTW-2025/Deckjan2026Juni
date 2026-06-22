@@ -738,6 +738,7 @@ function ShuffleDeck()
         )
         {
             DeckList.push(card);
+
         }
     }
 
@@ -1148,6 +1149,7 @@ function AnimateShuffleDeck()
 		card.dataset.faceup = "0";
 		card.src = "C00.gif";
             DeckList.push(card);
+			card.style.top  = "38px";
         }
     }
 
@@ -3094,7 +3096,7 @@ document
 
 function AnimateShuffleKilled()
 {
-    let DeckList = [];
+    let KilledList = [];
 
     let i;
     let card;
@@ -3127,7 +3129,10 @@ function AnimateShuffleKilled()
         {
 		card.dataset.faceup = "0";
 		card.src = "C00.gif";
-            DeckList.push(card);
+	KilledList.push(card);
+
+    card.style.left = "1130px";
+    card.style.top  = "210px";
         }
     }
 
@@ -3139,13 +3144,13 @@ function AnimateShuffleKilled()
         if(ShuffleStep % 2 === 0)
             dir = -1;
 
-		for(i=0;i<DeckList.length;i++)
+		for(i=0;i<KilledList.length;i++)
 		{
-			DeckList[i].style.zIndex =
+			KilledList[i].style.zIndex =
 				5000 +
 				Math.floor(Math.random()*1000);
 
-				DeckList[i].style.left =
+				KilledList[i].style.left =
         (
             1100 +
             dir *
