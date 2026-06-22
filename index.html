@@ -242,8 +242,13 @@ The game ends in a win if you reach the end of the deck without being overwhelme
 		id="butShuffle"
 		src="But_Shuffle.gif"
 		style="left:527px;top:122px">	
+		
+	<img class="button"
+		id="butShuffleKilled"
+		src="Shuff_Vert.gif"
+		style="left:1050px;top:205px">		
 
-		<img class="button" /* Score VP */
+	<img class="button" /* Score VP */
 		id="butExit"
 		src="But_Exit.gif"
 		style="left:1112px;top:347px">
@@ -454,8 +459,6 @@ let GamePaused = false;
 let PauseX = 0;
 let PauseDir = -1;
 let HS_View = 1; /* 0=LM Level_Master 1=VPM Victory Points Master */
-let C14HintDisabled = false;
-let C14HintVisible = false;
 const TrackUmami = true; // Verander naar true indien je wilt tracken
 
 
@@ -706,7 +709,7 @@ AnimateShuffleDeck();
 function ShuffleDeck()
 {
     let DeckList = [];
-
+	let KilledList = [];
     let i;
     let card;
     let cx;
@@ -2198,40 +2201,6 @@ function LoadHighScores()
         );
 }
 
-function ShowC14Hint()
-{
-if(C14HintDisabled)
-    return;
-
-if(C14HintVisible)
-    return;
-
-    C14HintShown = true;
-
-    document.getElementById(
-        "C14Hint"
-    ).style.display = "block";
-
-    setTimeout(function()
-    {
-        if(
-            document.getElementById(
-                "C14HintCheck"
-            ).checked
-        )
-        {
-            C14HintDisabled = true;
-        }
-
-        document.getElementById(
-            "C14Hint"
-        ).style.display = "none";
-
-        C14HintVisible = false;
-
-    },8000);
-}
-
 function ShowBraves()
 {
     UpdateBraves();
@@ -2583,6 +2552,83 @@ document
     SaveNotes();
 });
 
+function ShuffleKilledVisitors()
+{
+    let KilledList = [];
+
+    let i;
+    let card;
+    let cx;
+    let cy;
+
+    for(i=1;i<=50;i++)
+    {
+        let n =
+            "C" +
+            String(i).padStart(2,"0") +
+            ".gif";
+
+        card = cardsById[n];
+
+        if(!card)
+            continue;
+
+        cx = parseInt(card.style.left) + 44;
+        cy = parseInt(card.style.top) + 61;
+
+        // <-- HIER KOMEN DE COORDINATEN
+        //     VAN DE KILLED AREA
+
+        if(
+            cx >= 1075 &&
+            cx <= 1220 &&
+            cy >= 180 &&
+            cy <= 337
+        )
+        {
+            card.dataset.faceup = "0";
+            card.src = "C00.gif";
+
+            KilledList.push(card);
+        }
+    }
+
+    for(i=KilledList.length-1;i>0;i--)
+    {
+        let rnd =
+            Math.floor(
+                Math.random() * (i+1)
+            );
+
+        let temp =
+            KilledList[i];
+
+        KilledList[i] =
+            KilledList[rnd];
+
+        KilledList[rnd] =
+            temp;
+    }
+
+    for(i=0;i<KilledList.length;i++)
+    {
+        card = KilledList[i];
+
+        // <-- OOK HIER DE POSITIE
+        //     VAN DE KILLED STACK
+
+        card.style.left = "1100px";
+        card.style.top  = "210px";
+
+        card.style.zIndex =
+            1000 + i;
+    }
+
+    UpdateAreas();
+}
+
+
+
 /* Nieuwe Functies hier direct boven plaatsen */
 /* =====================================================
    SECTION 5! - MOUSE EVENTS
@@ -2780,6 +2826,13 @@ if(window.umami &&  TrackUmami)  // = TrackUmami == true. change const TrackUmam
     umami.track("Shuffle");
 }
     AnimateShuffleDeck();
+});
+
+document
+.getElementById("butShuffleKilled")
+.addEventListener("click", function()
+{
+    AnimateShuffleKilled();
 });
 
 document
@@ -3038,6 +3091,84 @@ document
     }
     ToggleNotes();
 });
+
+function AnimateShuffleKilled()
+{
+    let DeckList = [];
+
+    let i;
+    let card;
+    let cx;
+    let cy;
+
+    let ShuffleStep = 0;
+
+    for(i=1;i<=50;i++)
+    {
+        let n =
+            "C" +
+            String(i).padStart(2,"0") +
+            ".gif";
+
+        card = cardsById[n];
+
+        if(!card)
+            continue;
+
+        cx = parseInt(card.style.left) + 44;
+        cy = parseInt(card.style.top) + 61;
+
+		if(
+			cx >= 1075 &&
+			cx <= 1220 &&
+			cy >= 180 &&
+			cy <= 337
+		)
+        {
+		card.dataset.faceup = "0";
+		card.src = "C00.gif";
+            DeckList.push(card);
+        }
+    }
+
+    let ShuffleTimer =
+    setInterval(function()
+    {
+        let dir = 1;
+
+        if(ShuffleStep % 2 === 0)
+            dir = -1;
+
+		for(i=0;i<DeckList.length;i++)
+		{
+			DeckList[i].style.zIndex =
+				5000 +
+				Math.floor(Math.random()*1000);
+
+				DeckList[i].style.left =
+        (
+            1100 +
+            dir *
+            ((i % 2) * 25)
+        )
+        + "px";
+}
+
+        ShuffleStep++;
+
+        // aantal shuffle bewegingen
+        if(ShuffleStep >= 14)
+        {
+            clearInterval(
+                ShuffleTimer
+            );
+
+            ShuffleKilledVisitors();
+        }
+
+    },120); // Snelheid > is langzamer
+}  
+
 
 
 /* Nieuwe Functies hier direct boven plaatsen */
